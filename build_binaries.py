@@ -35,6 +35,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 LIST_FILENAME = BASE_DIR / "my_custom_blocklist.list"
 DOMAINSET_FILENAME = BASE_DIR / "my_custom_blocklist.domainset"
+DOMAINSET_LIST_FILENAME = BASE_DIR / "my_custom_blocklist_domainset.list"
 EXTRAS_FILENAME = BASE_DIR / "my_custom_blocklist_extras.list"
 DIST_DIR = BASE_DIR / "dist"
 STATS_FILENAME = BASE_DIR / "reports" / "build_stats.json"
@@ -105,10 +106,12 @@ def split_sr_sets() -> tuple[int, int, int]:
     )
 
     # DOMAIN-SET: только голые домены, без заголовков и комментариев.
-    DOMAINSET_FILENAME.write_text(
-        "".join(f"{d}\n" for d in suffix_domains),
-        encoding="utf-8",
-    )
+    # Вторая копия с расширением .list — для проверки гипотезы, что
+    # Shadowrocket по-разному обрабатывает один и тот же контент
+    # в зависимости от расширения/URL (эксперимент владельца 28.10.2026).
+    domainset_text = "".join(f"{d}\n" for d in suffix_domains)
+    DOMAINSET_FILENAME.write_text(domainset_text, encoding="utf-8")
+    DOMAINSET_LIST_FILENAME.write_text(domainset_text, encoding="utf-8")
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     header = [
@@ -216,6 +219,7 @@ def main_build() -> None:
     for name in (
         "my_custom_blocklist.list",
         "my_custom_blocklist.domainset",
+        "my_custom_blocklist_domainset.list",
         "my_custom_blocklist_extras.list",
         "my_custom_blocklist.mrs",
         "my_custom_blocklist.srs",
