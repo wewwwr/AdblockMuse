@@ -1,0 +1,140 @@
+name: Update Blocklist
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Принудительно включает Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Python script
+        run: python update_list.py
+
+      - name: Check All Parsers
+        run: python check_parser.py
+
+      # Проверяем, что отчёт и список нераспарсенных
+      # действительно созданы перед commit.
+      - name: Verify Reports
+        run: |
+          echo "📁 Contents of reports/:"
+          ls -lah reports/
+
+          echo ""
+          echo "📄 Checking parser report..."
+          test -f reports/parser_report.md
+
+          echo "📄 Checking unparsed lines..."
+          test -f reports/unparsed_lines.txt
+
+          echo ""
+          echo "📊 Unparsed lines:"
+          wc -l reports/unparsed_lines.txt
+
+      # Компиляторы rule-set: mihomo (.mrs) и sing-box (.srs).
+      # Версия НЕ зашита в имя файла: актуальный релиз и ссылка
+      # на ассет каждый раз резолвятся через GitHub API,
+      # поэтому шаг не умирает после выхода новой версии.
+      - name: Download rule-set compilers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p bin
+
+          echo "🔎 Resolving latest mihomo release..."
+          MIHOMO_URL=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux-amd64-compatible-v[0-9].*\\.gz$")) | .browser_download_url' | head -n 1)
+          echo "mihomo asset: $MIHOMO_URL"
+          test -n "$MIHOMO_URL"
+          curl -fsSL "$MIHOMO_URL" -o bin/mihomo.gz
+          gunzip bin/mihomo.gz
+          chmod +x bin/mihomo
+          bin/mihomo -v
+
+          echo ""
+          echo "🔎 Resolving latest sing-box release..."
+          SINGBOX_URL=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/SagerNet/sing-box/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux-amd64\\.tar\\.gz$")) | .browser_download_url' | head -n 1)
+          echo "sing-box asset: $SINGBOX_URL"
+          test -n "$SINGBOX_URL"
+          curl -fsSL "$SINGBOX_URL" -o bin/sing-box.tar.gz
+          tar -xzf bin/sing-box.tar.gz -C bin
+          find bin -name "sing-box" -type f -exec mv {} bin/sing-box-bin \;
+          mv bin/sing-box-bin bin/sing-box
+          chmod +x bin/sing-box
+          rm bin/sing-box.tar.gz
+          bin/sing-box version
+
+          echo ""
+          echo "🔎 Downloading Public Suffix List..."
+          curl -fsSL https://publicsuffix.org/list/public_suffix_list.dat -o bin/public_suffix_list.dat
+          wc -l bin/public_suffix_list.dat
+
+      - name: Build binary rule-sets (.mrs / .srs)
+        run: python build_binaries.py
+
+      # Канарейки: исключения не накрыты, контрольные домены
+      # блокируются, в списке нет публичных суффиксов.
+      # Провал здесь = красный билд, плохой файл не публикуется.
+      - name: Verify rules (canary checks)
+        run: python verify_rules.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Добавляем весь reports/, чтобы новые отчёты
+          # в будущем тоже автоматически попадали в Git.
+          git add my_custom_blocklist.list
+          git add my_custom_direct_list.list
+          git add reports/
+
+          echo ""
+          echo "📋 Changes to commit:"
+          git status --short
+
+          git commit -m "Auto-update blocklist and parser reports" || echo "No changes to commit"
+
+          git push
+
+      # Бинарники не коммитим в Git (история раздувается):
+      # они живут в rolling-релизе "latest" со стабильными ссылками
+      # вида releases/latest/download/my_custom_blocklist.mrs
+      - name: Publish binaries to rolling release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view latest >/dev/null 2>&1 || gh release create latest \
+            --title "Latest compiled rule-sets" \
+            --notes "Auto-updated .mrs (Mihomo/OpenClash) and .srs (sing-box) builds of the blocklist and the direct (whitelist) set. Rebuilt daily by GitHub Actions."
+
+          gh release upload latest \
+            dist/my_custom_blocklist.mrs \
+            dist/my_custom_direct.mrs \
+            dist/my_custom_blocklist.srs \
+            dist/my_custom_direct.srs \
+            --clobber
+
+          echo "✅ Release assets updated:"
+          gh release view latest --json assets --jq '.assets[].name'
