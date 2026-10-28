@@ -43,14 +43,20 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT,no-resolve
 ```
 
-Быстрый вариант — тот же набор правил, разбитый на доменный сет и остаток.
-DOMAIN-SET матчится по доменному дереву и заметно легче парсится:
+Экспериментальный вариант — тот же набор правил, разбитый на доменный сет
+и остаток:
 
 ```ini
 [Rule]
 DOMAIN-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.domainset,REJECT
 RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist_extras.list,REJECT,no-resolve
 ```
+
+⚠️ **Не рекомендуется как основной.** Замер на тесте из 489 хостов
+(28.10.2026): одиночный RULE-SET выше заблокировал 486/489 (99%),
+а пара с DOMAIN-SET — только 454/489 (93%): матчинг DOMAIN-SET
+в Shadowrocket на сете такого размера теряет часть поддоменов,
+хотя содержимое файлов идентично. Файлы оставлены для экспериментов.
 
 `no-resolve` на RULE-SET строках не даёт клиенту резолвить домены ради
 сверки с IP-CIDR правилами внутри набора — лишних DNS-запросов нет;
