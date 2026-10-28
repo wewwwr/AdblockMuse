@@ -1,0 +1,144 @@
+# AdBlock — собственный блоклист рекламы и трекеров
+
+Ежедневно собираемый из 16 открытых источников блоклист со сжатием поддоменов
+и компиляцией в бинарные rule-set форматы. Один источник правды — три выхода:
+Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
+
+## Файлы и стабильные ссылки
+
+| Файл | Формат | Для кого |
+|---|---|---|
+| `my_custom_blocklist.list` | текст, правила Shadowrocket/Surge | Shadowrocket, Surge |
+| `my_custom_direct_list.list` | текст, белый список из EXCLUSIONS | Shadowrocket, Surge |
+| `my_custom_blocklist.mrs` | бинарный rule-set | Mihomo, OpenClash |
+| `my_custom_direct.mrs` | бинарный rule-set белого списка | Mihomo, OpenClash |
+| `my_custom_blocklist.srs` | бинарный rule-set | sing-box, Throne |
+| `my_custom_direct.srs` | бинарный rule-set белого списка | sing-box, Throne |
+
+Ссылки (подставь свой логин и имя репозитория, если переименуешь):
+
+- Список: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list`
+- Белый список: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_direct_list.list`
+- .mrs: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.mrs`
+- .mrs direct: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.mrs`
+- .srs: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.srs`
+- .srs direct: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.srs`
+
+Бинарники лежат в rolling-релизе `latest` и перезаписываются каждую сборку,
+поэтому ссылки на них не меняются никогда.
+
+> **Важно про бинарники:** в .mrs/.srs попадают только домены (DOMAIN-SUFFIX).
+> Правила DOMAIN-KEYWORD и URL-REGEX в доменные бинарные форматы не переводятся —
+> они остаются только в текстовом `.list` для Shadowrocket/Surge.
+
+## Подключение
+
+Во всех клиентах порядок один: **сначала белый список (DIRECT), потом блоклист (REJECT)**.
+
+### Shadowrocket
+
+В конфиг, секция `[Rule]`:
+
+```ini
+[Rule]
+RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_direct_list.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT
+```
+
+### OpenClash / Mihomo
+
+```yaml
+rule-providers:
+  my-direct:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.mrs"
+    path: ./ruleset/my-direct.mrs
+    interval: 86400
+  my-block:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.mrs"
+    path: ./ruleset/my-block.mrs
+    interval: 86400
+
+rules:
+  - RULE-SET,my-direct,DIRECT
+  - RULE-SET,my-block,REJECT
+  # дальше — твои существующие правила и финальная политика
+```
+
+### sing-box / Throne
+
+В кастомный конфиг (подставь свой тег прокси-аутбаунда вместо `proxy`):
+
+```json
+{
+  "route": {
+    "rule_set": [
+      {
+        "tag": "my-direct",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.srs",
+        "download_detour": "proxy"
+      },
+      {
+        "tag": "my-block",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.srs",
+        "download_detour": "proxy"
+      }
+    ],
+    "rules": [
+      { "rule_set": "my-direct", "outbound": "direct" },
+      { "rule_set": "my-block", "action": "reject" }
+    ]
+  }
+}
+```
+
+## Как работает сборка
+
+Ежедневно в 02:00 UTC GitHub Actions:
+
+1. `update_list.py` — скачивает 16 источников, нормализует в правила
+   Shadowrocket/Surge, применяет EXCLUSIONS и ручные правила.
+2. **Сжатие поддоменов**: если домен уже стоит в списке как DOMAIN-SUFFIX,
+   его дочерние поддомены удаляются — родитель и так накрывает их все.
+   Это не расширяет блокировку: покрытие до и после сжатия одинаковое,
+   что доказывается автоматической самопроверкой при каждой сборке.
+   Домен, чьего родителя в списке нет, никогда не «расширяется» вверх.
+3. Голые публичные IP-адреса источников превращаются в IP-CIDR правила
+   (приватные адреса не блокируются).
+4. `check_parser.py` — независимый пересчёт всех источников и точная
+   сверка итогового файла; отчёт — в `reports/parser_report.md`,
+   нераспарсенные строки — в `reports/unparsed_lines.txt`.
+5. `build_binaries.py` — компиляция .mrs и .srs; версии mihomo и sing-box
+   резолвятся через GitHub API (не зашиты в имя файла).
+6. `verify_rules.py` — канарейки: исключения не накрыты блоклистом,
+   контрольные рекламные домены блокируются, в списке нет правил
+   уровня TLD. Провал = сборка не публикуется. Правила, равные публичным
+   суффиксам (приходят из самих источников), не роняют сборку, а выносятся
+   в `reports/public_suffix_warnings.txt` для ручного решения.
+7. Текстовые списки и отчёты коммитятся в репозиторий,
+   бинарники — в rolling-релиз `latest`.
+
+## Исключения (EXCLUSIONS)
+
+Список доменов, которые никогда не блокируются, задаётся в `update_list.py`.
+Исключение снимает сам домен, все его поддомены **и** родительское правило,
+которое его накрывало бы. Из исключений автоматически собирается белый
+список `my_custom_direct_list.list` / `my_custom_direct.mrs` /
+`my_custom_direct.srs` — его правила ставятся выше блоклиста.
+
+## Отчёты
+
+- `reports/parser_report.md` — статистика по каждому источнику:
+  сколько строк, сколько распарсено, сколько база реально добавила новых правил.
+- `reports/build_stats.json` — счётчики и размеры файлов последней сборки;
+  резкое изменение числа доменов (>35%) подсвечивается в логе проверки
+  как признак умершего источника.
