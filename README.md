@@ -9,7 +9,7 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 | Файл | Формат | Для кого |
 |---|---|---|
 | `my_custom_blocklist.list` | текст, правила Shadowrocket/Surge | Shadowrocket, Surge |
-| `my_custom_blocklist.domainset` | текст, домены без типов (DOMAIN-SET) | Shadowrocket (быстрый вариант) |
+| `my_custom_blocklist.domainset` | текст, домены с ведущей точкой (DOMAIN-SET) | Shadowrocket (рекомендуемый вариант) |
 | `my_custom_blocklist_extras.list` | текст, правила кроме DOMAIN-SUFFIX | Shadowrocket (пара к DOMAIN-SET) |
 | `my_custom_blocklist.mrs` | бинарный rule-set | Mihomo, OpenClash |
 | `my_custom_blocklist.srs` | бинарный rule-set | sing-box, Throne |
@@ -36,15 +36,7 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 
 ### Shadowrocket
 
-Классический вариант — один файл, секция `[Rule]`:
-
-```ini
-[Rule]
-RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT,no-resolve
-```
-
-Экспериментальный вариант — тот же набор правил, разбитый на доменный сет
-и остаток:
+Рекомендуемый вариант — доменный сет плюс остаток правил, секция `[Rule]`:
 
 ```ini
 [Rule]
@@ -52,11 +44,20 @@ DOMAIN-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_b
 RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist_extras.list,REJECT,no-resolve
 ```
 
-⚠️ **Не рекомендуется как основной.** Замер на тесте из 489 хостов
-(28.10.2026): одиночный RULE-SET выше заблокировал 486/489 (99%),
-а пара с DOMAIN-SET — только 454/489 (93%): матчинг DOMAIN-SET
-в Shadowrocket на сете такого размера теряет часть поддоменов,
-хотя содержимое файлов идентично. Файлы оставлены для экспериментов.
+Строки доменного сета пишутся с ведущей точкой (`.example.com` = домен
+и все его поддомены) — это документированный формат DOMAIN-SET.
+Проверено на тесте из 489 хостов (28.10.2026): пара даёт 486/489 (99%),
+как и классический вариант ниже, а файл доменов при этом ~14,8 МБ
+против ~24,2 МБ. Одна строка DOMAIN-SET без extras на том же тесте
+также даёт 99%, но в реальной работе extras нужны: в них живут
+DOMAIN-KEYWORD, IP-CIDR и URL-REGEX, которых в доменном сете нет.
+
+Классический вариант — один файл:
+
+```ini
+[Rule]
+RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT,no-resolve
+```
 
 `no-resolve` на RULE-SET строках не даёт клиенту резолвить домены ради
 сверки с IP-CIDR правилами внутри набора — лишних DNS-запросов нет;
