@@ -108,7 +108,6 @@ jobs:
           # в будущем тоже автоматически попадали в Git.
           git add my_custom_blocklist.list
           git add my_custom_blocklist.domainset
-          git add my_custom_blocklist_domainset.list
           git add my_custom_blocklist_extras.list
           git add reports/
 
