@@ -1,9 +1,14 @@
 {
-  "generated": "2026-10-28 13:21 UTC",
+  "generated": "2026-10-28 13:52 UTC",
   "suffix_domains": 721267,
   "previous_suffix_domains": 721267,
+  "domainset_domains": 721267,
+  "extras_rules": 990,
+  "list_total_rules": 722257,
   "sizes": {
     "my_custom_blocklist.list": 24190542,
+    "my_custom_blocklist.domainset": 14058829,
+    "my_custom_blocklist_extras.list": 32480,
     "my_custom_blocklist.mrs": 6091317,
     "my_custom_blocklist.srs": 6024189
   },
