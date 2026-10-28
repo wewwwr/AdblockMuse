@@ -3,15 +3,14 @@
 
 Выходы:
   dist/domainset.txt            — "+.domain" строки для компилятора mihomo
-  dist/direct_domainset.txt     — то же для белого списка (EXCLUSIONS)
   dist/blocklist_singbox.json   — исходник rule-set для sing-box
-  dist/direct_singbox.json      — то же для белого списка
   dist/my_custom_blocklist.mrs  — Mihomo/OpenClash (если есть bin/mihomo)
-  dist/my_custom_direct.mrs     — белый список для Mihomo/OpenClash
   dist/my_custom_blocklist.srs  — sing-box (если есть bin/sing-box)
-  dist/my_custom_direct.srs     — белый список для sing-box
-  my_custom_direct_list.list    — белый список в формате Shadowrocket (в корне)
   reports/build_stats.json      — счётчики и размеры для контроля здоровья
+
+Отдельный белый список НЕ публикуется (решение владельца 28.10.2026):
+домены из EXCLUSIONS (update_list.py) вырезаются из итогового списка при
+сборке — из любого источника, включая добавленные позже.
 
 Бинарники .mrs/.srs содержат только DOMAIN-SUFFIX домены:
 DOMAIN-KEYWORD и URL-REGEX в доменные бинарные форматы не переводятся,
@@ -20,34 +19,17 @@ DOMAIN-KEYWORD и URL-REGEX в доменные бинарные форматы 
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import subprocess
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 LIST_FILENAME = BASE_DIR / "my_custom_blocklist.list"
-DIRECT_LIST_FILENAME = BASE_DIR / "my_custom_direct_list.list"
 DIST_DIR = BASE_DIR / "dist"
 STATS_FILENAME = BASE_DIR / "reports" / "build_stats.json"
 MIHOMO_BIN = BASE_DIR / "bin" / "mihomo"
 SINGBOX_BIN = BASE_DIR / "bin" / "sing-box"
-
-
-def load_main_module():
-    spec = importlib.util.spec_from_file_location(
-        "main_blocklist",
-        BASE_DIR / "update_list.py",
-    )
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["main_blocklist"] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-main = load_main_module()
 
 
 def read_suffix_domains() -> list[str]:
@@ -80,25 +62,6 @@ def write_singbox_json(path: Path, domains: list[str]) -> None:
     }
     path.write_text(
         json.dumps(payload, separators=(",", ":")),
-        encoding="utf-8",
-    )
-
-
-def write_direct_list(domains: list[str]) -> None:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-
-    header = [
-        "# ══════════════════════════════════════════════════════════════",
-        "# Auto-generated Direct (whitelist) list — from EXCLUSIONS",
-        f"# Generated: {now}",
-        f"# Total rules: {len(domains)}",
-        "# ══════════════════════════════════════════════════════════════",
-        "",
-    ]
-
-    DIRECT_LIST_FILENAME.write_text(
-        "\n".join(header)
-        + "".join(f"DOMAIN-SUFFIX,{d}\n" for d in domains),
         encoding="utf-8",
     )
 
@@ -140,27 +103,14 @@ def main_build() -> None:
             previous_stats = {}
 
     suffix_domains = read_suffix_domains()
-    direct_domains = sorted(
-        {
-            main.normalize_domain(e)
-            for e in main.EXCLUSIONS
-            if main.normalize_domain(e)
-        }
-    )
 
     print(f"DOMAIN-SUFFIX доменов: {len(suffix_domains):,}")
-    print(f"Доменов белого списка: {len(direct_domains):,}")
 
     domainset = DIST_DIR / "domainset.txt"
-    direct_domainset = DIST_DIR / "direct_domainset.txt"
     blocklist_json = DIST_DIR / "blocklist_singbox.json"
-    direct_json = DIST_DIR / "direct_singbox.json"
 
     write_domainset(domainset, suffix_domains)
-    write_domainset(direct_domainset, direct_domains)
     write_singbox_json(blocklist_json, suffix_domains)
-    write_singbox_json(direct_json, direct_domains)
-    write_direct_list(direct_domains)
 
     stats: dict = {
         "generated": datetime.now(timezone.utc).strftime(
@@ -168,7 +118,6 @@ def main_build() -> None:
         ),
         "suffix_domains": len(suffix_domains),
         "previous_suffix_domains": previous_stats.get("suffix_domains"),
-        "direct_domains": len(direct_domains),
         "sizes": {},
         "tools": {},
     }
@@ -178,10 +127,6 @@ def main_build() -> None:
         run([
             str(MIHOMO_BIN), "convert-ruleset", "domain", "text",
             str(domainset), str(DIST_DIR / "my_custom_blocklist.mrs"),
-        ])
-        run([
-            str(MIHOMO_BIN), "convert-ruleset", "domain", "text",
-            str(direct_domainset), str(DIST_DIR / "my_custom_direct.mrs"),
         ])
     else:
         print("⚠️  bin/mihomo не найден — .mrs не собраны")
@@ -195,21 +140,13 @@ def main_build() -> None:
             "--output", str(DIST_DIR / "my_custom_blocklist.srs"),
             str(blocklist_json),
         ])
-        run([
-            str(SINGBOX_BIN), "rule-set", "compile",
-            "--output", str(DIST_DIR / "my_custom_direct.srs"),
-            str(direct_json),
-        ])
     else:
         print("⚠️  bin/sing-box не найден — .srs не собраны")
 
     for name in (
         "my_custom_blocklist.list",
-        "my_custom_direct_list.list",
         "my_custom_blocklist.mrs",
-        "my_custom_direct.mrs",
         "my_custom_blocklist.srs",
-        "my_custom_direct.srs",
     ):
         path = (BASE_DIR / name) if name.endswith(".list") else (
             DIST_DIR / name

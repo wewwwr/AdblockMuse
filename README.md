@@ -9,20 +9,14 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 | Файл | Формат | Для кого |
 |---|---|---|
 | `my_custom_blocklist.list` | текст, правила Shadowrocket/Surge | Shadowrocket, Surge |
-| `my_custom_direct_list.list` | текст, белый список из EXCLUSIONS | Shadowrocket, Surge |
 | `my_custom_blocklist.mrs` | бинарный rule-set | Mihomo, OpenClash |
-| `my_custom_direct.mrs` | бинарный rule-set белого списка | Mihomo, OpenClash |
 | `my_custom_blocklist.srs` | бинарный rule-set | sing-box, Throne |
-| `my_custom_direct.srs` | бинарный rule-set белого списка | sing-box, Throne |
 
 Ссылки (подставь свой логин и имя репозитория, если переименуешь):
 
 - Список: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list`
-- Белый список: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_direct_list.list`
 - .mrs: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.mrs`
-- .mrs direct: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.mrs`
 - .srs: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.srs`
-- .srs direct: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.srs`
 
 Бинарники лежат в rolling-релизе `latest` и перезаписываются каждую сборку,
 поэтому ссылки на них не меняются никогда.
@@ -33,7 +27,8 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 
 ## Подключение
 
-Во всех клиентах порядок один: **сначала белый список (DIRECT), потом блоклист (REJECT)**.
+Подключается только блоклист (REJECT). Отдельного белого списка нет:
+исключения уже вырезаны из блоклиста при сборке (см. «Исключения» ниже).
 
 ### Shadowrocket
 
@@ -41,7 +36,6 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 
 ```ini
 [Rule]
-RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_direct_list.list,DIRECT
 RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT
 ```
 
@@ -49,13 +43,6 @@ RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blo
 
 ```yaml
 rule-providers:
-  my-direct:
-    type: http
-    behavior: domain
-    format: mrs
-    url: "https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.mrs"
-    path: ./ruleset/my-direct.mrs
-    interval: 86400
   my-block:
     type: http
     behavior: domain
@@ -65,7 +52,6 @@ rule-providers:
     interval: 86400
 
 rules:
-  - RULE-SET,my-direct,DIRECT
   - RULE-SET,my-block,REJECT
   # дальше — твои существующие правила и финальная политика
 ```
@@ -79,13 +65,6 @@ rules:
   "route": {
     "rule_set": [
       {
-        "tag": "my-direct",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_direct.srs",
-        "download_detour": "proxy"
-      },
-      {
         "tag": "my-block",
         "type": "remote",
         "format": "binary",
@@ -94,7 +73,6 @@ rules:
       }
     ],
     "rules": [
-      { "rule_set": "my-direct", "outbound": "direct" },
       { "rule_set": "my-block", "action": "reject" }
     ]
   }
@@ -131,9 +109,11 @@ rules:
 
 Список доменов, которые никогда не блокируются, задаётся в `update_list.py`.
 Исключение снимает сам домен, все его поддомены **и** родительское правило,
-которое его накрывало бы. Из исключений автоматически собирается белый
-список `my_custom_direct_list.list` / `my_custom_direct.mrs` /
-`my_custom_direct.srs` — его правила ставятся выше блоклиста.
+которое его накрывало бы. Фильтр применяется к объединённому итогу всех
+источников, поэтому любой новый источник, добавленный в сборку позже,
+автоматически учитывает те же исключения. Отдельный белый список не
+публикуется: исключённых доменов в блоклисте просто нет. Чтобы добавить
+исключение — допиши домен в EXCLUSIONS в `update_list.py`.
 
 ## Отчёты
 

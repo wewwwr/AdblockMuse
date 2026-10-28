@@ -107,7 +107,6 @@ jobs:
           # Добавляем весь reports/, чтобы новые отчёты
           # в будущем тоже автоматически попадали в Git.
           git add my_custom_blocklist.list
-          git add my_custom_direct_list.list
           git add reports/
 
           echo ""
@@ -127,13 +126,11 @@ jobs:
         run: |
           gh release view latest >/dev/null 2>&1 || gh release create latest \
             --title "Latest compiled rule-sets" \
-            --notes "Auto-updated .mrs (Mihomo/OpenClash) and .srs (sing-box) builds of the blocklist and the direct (whitelist) set. Rebuilt daily by GitHub Actions."
+            --notes "Auto-updated .mrs (Mihomo/OpenClash) and .srs (sing-box) builds of the blocklist. Rebuilt daily by GitHub Actions."
 
           gh release upload latest \
             dist/my_custom_blocklist.mrs \
-            dist/my_custom_direct.mrs \
             dist/my_custom_blocklist.srs \
-            dist/my_custom_direct.srs \
             --clobber
 
           echo "✅ Release assets updated:"
