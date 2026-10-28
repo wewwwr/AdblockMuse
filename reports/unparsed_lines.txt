@@ -1,7 +1,17 @@
 # Unparsed Shadowrocket / Surge source lines
-# Generated: 2026-10-28 16:10 UTC
-# Total unparsed lines: 26
-# Sources with unparsed lines: 4
+# Generated: 2026-10-28 16:29 UTC
+# Total unparsed lines: 30
+# Sources with unparsed lines: 6
+
+══════════════════════════════════════════════════════════════
+SOURCE: blackmatrix7 — Advertising
+URL: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising.list
+UNPARSED: 3
+══════════════════════════════════════════════════════════════
+
+[line 304] IP-CIDR,0.0.0.0/24,no-resolve
+[line 306] IP-CIDR,10.72.25.0/24,no-resolve
+[line 482] IP-CIDR,169.254.169.254/32,no-resolve
 
 ══════════════════════════════════════════════════════════════
 SOURCE: blackmatrix7 — Advertising Domain
@@ -12,6 +22,14 @@ UNPARSED: 3
 [line 274025] 10.10.34.34
 [line 274026] 10.10.34.35
 [line 274027] 10.10.34.36
+
+══════════════════════════════════════════════════════════════
+SOURCE: blackmatrix7 — Privacy
+URL: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Privacy/Privacy.list
+UNPARSED: 1
+══════════════════════════════════════════════════════════════
+
+[line 19] IP-CIDR,0.0.0.1/32,no-resolve
 
 ══════════════════════════════════════════════════════════════
 SOURCE: 1Hosts Lite
