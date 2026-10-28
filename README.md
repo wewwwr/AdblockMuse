@@ -9,12 +9,16 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 | Файл | Формат | Для кого |
 |---|---|---|
 | `my_custom_blocklist.list` | текст, правила Shadowrocket/Surge | Shadowrocket, Surge |
+| `my_custom_blocklist.domainset` | текст, домены без типов (DOMAIN-SET) | Shadowrocket (быстрый вариант) |
+| `my_custom_blocklist_extras.list` | текст, правила кроме DOMAIN-SUFFIX | Shadowrocket (пара к DOMAIN-SET) |
 | `my_custom_blocklist.mrs` | бинарный rule-set | Mihomo, OpenClash |
 | `my_custom_blocklist.srs` | бинарный rule-set | sing-box, Throne |
 
 Ссылки (подставь свой логин и имя репозитория, если переименуешь):
 
 - Список: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list`
+- DOMAIN-SET: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.domainset`
+- Extras: `https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist_extras.list`
 - .mrs: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.mrs`
 - .srs: `https://github.com/wewwwr/AdblockMuse/releases/latest/download/my_custom_blocklist.srs`
 
@@ -32,12 +36,24 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 
 ### Shadowrocket
 
-В конфиг, секция `[Rule]`:
+Классический вариант — один файл, секция `[Rule]`:
 
 ```ini
 [Rule]
 RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT
 ```
+
+Быстрый вариант — тот же набор правил, разбитый на доменный сет и остаток.
+DOMAIN-SET матчится по доменному дереву и заметно легче парсится:
+
+```ini
+[Rule]
+DOMAIN-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.domainset,REJECT
+RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist_extras.list,REJECT
+```
+
+Оба варианта дают одинаковое покрытие: domainset + extras в сумме —
+это ровно `my_custom_blocklist.list` (сверяется при каждой сборке).
 
 ### OpenClash / Mihomo
 

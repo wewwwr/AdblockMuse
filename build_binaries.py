@@ -6,7 +6,15 @@
   dist/blocklist_singbox.json   — исходник rule-set для sing-box
   dist/my_custom_blocklist.mrs  — Mihomo/OpenClash (если есть bin/mihomo)
   dist/my_custom_blocklist.srs  — sing-box (если есть bin/sing-box)
+  my_custom_blocklist.domainset — Shadowrocket DOMAIN-SET: все DOMAIN-SUFFIX
+                                  домены голым списком без типов (быстрый путь SR)
+  my_custom_blocklist_extras.list — Shadowrocket RULE-SET: все остальные правила
+                                  (DOMAIN-KEYWORD, URL-REGEX, IP-CIDR, DOMAIN)
   reports/build_stats.json      — счётчики и размеры для контроля здоровья
+
+DOMAIN-SET + extras в сумме дают ровно my_custom_blocklist.list:
+домены уходят в domainset, всё остальное — в extras, объединение тождественно
+исходному списку (проверяется assert'ом при каждой сборке).
 
 Отдельный белый список НЕ публикуется (решение владельца 28.10.2026):
 домены из EXCLUSIONS (update_list.py) вырезаются из итогового списка при
@@ -26,6 +34,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 LIST_FILENAME = BASE_DIR / "my_custom_blocklist.list"
+DOMAINSET_FILENAME = BASE_DIR / "my_custom_blocklist.domainset"
+EXTRAS_FILENAME = BASE_DIR / "my_custom_blocklist_extras.list"
 DIST_DIR = BASE_DIR / "dist"
 STATS_FILENAME = BASE_DIR / "reports" / "build_stats.json"
 MIHOMO_BIN = BASE_DIR / "bin" / "mihomo"
@@ -64,6 +74,59 @@ def write_singbox_json(path: Path, domains: list[str]) -> None:
         json.dumps(payload, separators=(",", ":")),
         encoding="utf-8",
     )
+
+
+def split_sr_sets() -> tuple[int, int, int]:
+    """Разделить итоговый список на DOMAIN-SET и extras для Shadowrocket.
+
+    Возвращает (доменов в domainset, правил в extras, всего правил).
+    Объединение двух файлов обязано быть тождественно исходному списку.
+    """
+    suffix_domains: list[str] = []
+    extras: list[str] = []
+    total = 0
+
+    for raw in LIST_FILENAME.read_text(
+        encoding="utf-8", errors="replace"
+    ).splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        total += 1
+        if line.startswith("DOMAIN-SUFFIX,"):
+            suffix_domains.append(line.split(",", 1)[1].strip())
+        else:
+            extras.append(line)
+
+    suffix_domains = sorted(set(suffix_domains))
+    assert len(suffix_domains) + len(extras) == total, (
+        "DOMAIN-SET + extras не равны исходному списку: "
+        f"{len(suffix_domains)} + {len(extras)} != {total}"
+    )
+
+    # DOMAIN-SET: только голые домены, без заголовков и комментариев.
+    DOMAINSET_FILENAME.write_text(
+        "".join(f"{d}\n" for d in suffix_domains),
+        encoding="utf-8",
+    )
+
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    header = [
+        "# ══════════════════════════════════════════════════════════════",
+        "# Auto-generated extras rule-set for Shadowrocket (RULE-SET)",
+        "# Все правила my_custom_blocklist.list, кроме DOMAIN-SUFFIX:",
+        "# DOMAIN-KEYWORD, URL-REGEX, IP-CIDR и DOMAIN.",
+        f"# Generated: {now}",
+        f"# Total rules: {len(extras)}",
+        "# ══════════════════════════════════════════════════════════════",
+        "",
+    ]
+    EXTRAS_FILENAME.write_text(
+        "\n".join(header) + "".join(f"{l}\n" for l in extras),
+        encoding="utf-8",
+    )
+
+    return len(suffix_domains), len(extras), total
 
 
 def run(cmd: list[str]) -> None:
@@ -112,12 +175,19 @@ def main_build() -> None:
     write_domainset(domainset, suffix_domains)
     write_singbox_json(blocklist_json, suffix_domains)
 
+    ds_count, ex_count, total_rules = split_sr_sets()
+    print(f"DOMAIN-SET для SR: {ds_count:,} доменов; "
+          f"extras: {ex_count:,} правил; всего в списке: {total_rules:,}")
+
     stats: dict = {
         "generated": datetime.now(timezone.utc).strftime(
             "%Y-%m-%d %H:%M UTC"
         ),
         "suffix_domains": len(suffix_domains),
         "previous_suffix_domains": previous_stats.get("suffix_domains"),
+        "domainset_domains": ds_count,
+        "extras_rules": ex_count,
+        "list_total_rules": total_rules,
         "sizes": {},
         "tools": {},
     }
@@ -145,11 +215,13 @@ def main_build() -> None:
 
     for name in (
         "my_custom_blocklist.list",
+        "my_custom_blocklist.domainset",
+        "my_custom_blocklist_extras.list",
         "my_custom_blocklist.mrs",
         "my_custom_blocklist.srs",
     ):
-        path = (BASE_DIR / name) if name.endswith(".list") else (
-            DIST_DIR / name
+        path = (DIST_DIR / name) if name.endswith((".mrs", ".srs")) else (
+            BASE_DIR / name
         )
         stats["sizes"][name] = file_size(path)
 

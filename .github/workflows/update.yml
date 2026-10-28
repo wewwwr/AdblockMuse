@@ -107,6 +107,8 @@ jobs:
           # Добавляем весь reports/, чтобы новые отчёты
           # в будущем тоже автоматически попадали в Git.
           git add my_custom_blocklist.list
+          git add my_custom_blocklist.domainset
+          git add my_custom_blocklist_extras.list
           git add reports/
 
           echo ""
