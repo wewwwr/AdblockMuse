@@ -1,15 +1,11 @@
 {
-  "generated": "2026-10-28 13:08 UTC",
+  "generated": "2026-10-28 13:21 UTC",
   "suffix_domains": 721267,
-  "previous_suffix_domains": null,
-  "direct_domains": 10,
+  "previous_suffix_domains": 721267,
   "sizes": {
     "my_custom_blocklist.list": 24190542,
-    "my_custom_direct_list.list": 803,
     "my_custom_blocklist.mrs": 6091317,
-    "my_custom_direct.mrs": 216,
-    "my_custom_blocklist.srs": 6024189,
-    "my_custom_direct.srs": 202
+    "my_custom_blocklist.srs": 6024189
   },
   "tools": {
     "mihomo": "Mihomo Meta v1.19.33 linux amd64 with go1.26.10 Wed Oct 21 16:44:56 UTC 2026",
