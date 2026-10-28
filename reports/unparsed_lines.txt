@@ -1,0 +1,59 @@
+# Unparsed Shadowrocket / Surge source lines
+# Generated: 2026-10-28 13:08 UTC
+# Total unparsed lines: 26
+# Sources with unparsed lines: 4
+
+══════════════════════════════════════════════════════════════
+SOURCE: blackmatrix7 — Advertising Domain
+URL: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising_Domain.list
+UNPARSED: 3
+══════════════════════════════════════════════════════════════
+
+[line 274025] 10.10.34.34
+[line 274026] 10.10.34.35
+[line 274027] 10.10.34.36
+
+══════════════════════════════════════════════════════════════
+SOURCE: 1Hosts Lite
+URL: https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt
+UNPARSED: 1
+══════════════════════════════════════════════════════════════
+
+[line 156986] smaato_sdk_remote_config\.json.sdk-files.smaato.net
+
+══════════════════════════════════════════════════════════════
+SOURCE: StevenBlack Hosts
+URL: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+UNPARSED: 13
+══════════════════════════════════════════════════════════════
+
+[line 15] 127.0.0.1 localhost
+[line 17] 127.0.0.1 local
+[line 18] 255.255.255.255 broadcasthost
+[line 19] ::1 localhost
+[line 20] ::1 ip6-localhost
+[line 21] ::1 ip6-loopback
+[line 22] fe80::1%lo0 localhost
+[line 23] ff00::0 ip6-localnet
+[line 24] ff00::0 ip6-mcastprefix
+[line 25] ff02::1 ip6-allnodes
+[line 26] ff02::2 ip6-allrouters
+[line 27] ff02::3 ip6-allhosts
+[line 28] 0.0.0.0 0.0.0.0
+
+══════════════════════════════════════════════════════════════
+SOURCE: hBlock
+URL: https://hblock.molinero.dev/hosts
+UNPARSED: 9
+══════════════════════════════════════════════════════════════
+
+[line 6] 127.0.0.1       localhost
+[line 7] 255.255.255.255 broadcasthost
+[line 8] ::1             localhost
+[line 9] ::1             ip6-localhost ip6-loopback
+[line 10] fe00::0         ip6-localnet
+[line 11] ff00::0         ip6-mcastprefix
+[line 12] ff02::1         ip6-allnodes
+[line 13] ff02::2         ip6-allrouters
+[line 14] ff02::3         ip6-allhosts
+
