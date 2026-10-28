@@ -40,7 +40,7 @@ Shadowrocket/Surge, Mihomo/OpenClash и sing-box.
 
 ```ini
 [Rule]
-RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT
+RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.list,REJECT,no-resolve
 ```
 
 Быстрый вариант — тот же набор правил, разбитый на доменный сет и остаток.
@@ -49,8 +49,12 @@ DOMAIN-SET матчится по доменному дереву и заметн
 ```ini
 [Rule]
 DOMAIN-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist.domainset,REJECT
-RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist_extras.list,REJECT
+RULE-SET,https://raw.githubusercontent.com/wewwwr/AdblockMuse/main/my_custom_blocklist_extras.list,REJECT,no-resolve
 ```
+
+`no-resolve` на RULE-SET строках не даёт клиенту резолвить домены ради
+сверки с IP-CIDR правилами внутри набора — лишних DNS-запросов нет;
+на DOMAIN-SET флаг не нужен, он там игнорируется.
 
 Оба варианта дают одинаковое покрытие: domainset + extras в сумме —
 это ровно `my_custom_blocklist.list` (сверяется при каждой сборке).
