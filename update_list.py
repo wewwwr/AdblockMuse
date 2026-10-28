@@ -203,6 +203,37 @@ def ip_to_cidr_rule(value: str) -> Optional[str]:
     return f"IP-CIDR6,{ip}/128"
 
 
+def normalize_cidr_rule(value: str) -> Optional[str]:
+    """
+    Нормализует значение IP-CIDR/IP-CIDR6 правила из источника.
+
+    Готовые SR-конфиги пишут хвосты вида ",no-resolve":
+    IP-CIDR,1.2.3.0/24,no-resolve. Раньше значение уходило в список
+    как есть: хвосты плодили текстовые дубли одного и того же правила,
+    а приватные и служебные сети (0.0.0.0/24, 10.72.25.0/24 и т.п.)
+    проходили без проверки is_global — она была только у голых IP.
+
+    Здесь хвост отрезается, сеть приводится к каноническому виду,
+    не-глобальные сети отбрасываются, а тип правила определяется
+    фактической версией сети, а не префиксом из источника.
+    """
+
+    net_str = value.split(",", 1)[0].strip()
+
+    try:
+        net = ipaddress.ip_network(net_str, strict=False)
+    except ValueError:
+        return None
+
+    if not net.is_global:
+        return None
+
+    if net.version == 4:
+        return f"IP-CIDR,{net}"
+
+    return f"IP-CIDR6,{net}"
+
+
 def normalize_domain(value: str) -> str:
     value = value.strip().lower()
     value = value.strip(".")
@@ -385,6 +416,10 @@ def extract_domain_token(
     text = text.strip().strip("^").strip()
     text = text.replace("\\", "/")
 
+    # Adblock-модификаторы: ||example.com^$third-party — всё после
+    # разделителя ^ и после $ не является частью домена.
+    text = text.split("^", 1)[0].split("$", 1)[0]
+
     if "://" in text:
         return extract_host_from_url(text)
 
@@ -448,6 +483,11 @@ def normalize_rule(line: str) -> Optional[str]:
             "DOMAIN-SUFFIX",
             "DOMAIN-KEYWORD"
         }:
+            # Хвост после второй запятой (",REJECT" из готовых конфигов) —
+            # не часть домена: без отсечения он портит значение
+            # ("example.com,reject") и ломает проверку исключений ниже.
+            value = value.split(",", 1)[0].strip()
+
             # Сначала проверяем исключения.
             if is_excluded_rule(prefix, value):
                 return None
@@ -463,15 +503,22 @@ def normalize_rule(line: str) -> Optional[str]:
 
             return f"{prefix},{domain}"
 
+        if prefix in {"IP-CIDR", "IP-CIDR6"}:
+            return normalize_cidr_rule(value)
+
         if prefix in {
-            "IP-CIDR",
-            "IP-CIDR6",
             "GEOIP",
             "PROCESS-NAME",
             "USER-AGENT",
             "URL-REGEX",
         }:
             return f"{prefix},{value}"
+
+        # Неизвестный префикс. Строка с URL (RULE-SET,https://… и прочие
+        # строки готовых конфигов) не должна превращаться в блокировку
+        # хоста этого URL: это чужие списки и служебные адреса.
+        if "://" in value:
+            return None
 
         domain = extract_domain_token(value)
 
@@ -702,6 +749,10 @@ def collapse_rules(rules: set[str]) -> set[str]:
     - DOMAIN-SUFFIX: дочерние поддомены удаляются под живым родителем.
     - DOMAIN: точное правило удаляется, если оно накрыто
       surviving DOMAIN-SUFFIX правилом.
+    - DOMAIN-KEYWORD: ключевое слово удаляется, если оно содержит
+      более короткое выжившее ключевое слово как подстроку.
+    - IP-CIDR/IP-CIDR6: поглощённые и смежные сети склеиваются
+      (collapse_addresses), не-глобальные отбрасываются.
     - Все остальные типы правил не изменяются.
 
     Самопроверки (сборка падает, а не пишет плохой файл):
@@ -711,6 +762,8 @@ def collapse_rules(rules: set[str]) -> set[str]:
 
     suffix_domains: set[str] = set()
     exact_domains: set[str] = set()
+    keyword_values: set[str] = set()
+    cidr_rules: set[str] = set()
     other_rules: set[str] = set()
 
     for rule in rules:
@@ -720,6 +773,10 @@ def collapse_rules(rules: set[str]) -> set[str]:
             suffix_domains.add(value)
         elif prefix == "DOMAIN":
             exact_domains.add(value)
+        elif prefix == "DOMAIN-KEYWORD":
+            keyword_values.add(value)
+        elif prefix in {"IP-CIDR", "IP-CIDR6"}:
+            cidr_rules.add(rule)
         else:
             other_rules.add(rule)
 
@@ -747,9 +804,42 @@ def collapse_rules(rules: set[str]) -> set[str]:
         if not is_covered_by_suffixes(domain, optimized)
     }
 
+    # DOMAIN-KEYWORD: длинное ключевое слово, содержащее короткое как
+    # подстроку, избыточно — короткое матчится везде, где длинное.
+    kept_keywords: list[str] = []
+
+    for kw in sorted(keyword_values, key=len):
+        if not any(short in kw for short in kept_keywords):
+            kept_keywords.append(kw)
+
+    # IP-CIDR: склейка поглощённых и смежных сетей по версиям адресов.
+    nets4: list[ipaddress.IPv4Network] = []
+    nets6: list[ipaddress.IPv6Network] = []
+
+    for rule in cidr_rules:
+        try:
+            net = ipaddress.ip_network(
+                rule.split(",", 1)[1], strict=False
+            )
+        except ValueError:
+            continue
+
+        if not net.is_global:
+            continue
+
+        (nets4 if net.version == 4 else nets6).append(net)
+
+    collapsed_cidrs = {
+        f"IP-CIDR,{n}" for n in ipaddress.collapse_addresses(nets4)
+    } | {
+        f"IP-CIDR6,{n}" for n in ipaddress.collapse_addresses(nets6)
+    }
+
     result = set(other_rules)
     result.update(f"DOMAIN-SUFFIX,{d}" for d in optimized)
     result.update(f"DOMAIN,{d}" for d in kept_exact)
+    result.update(f"DOMAIN-KEYWORD,{k}" for k in kept_keywords)
+    result.update(collapsed_cidrs)
 
     return result
 

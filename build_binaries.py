@@ -63,17 +63,83 @@ def write_domainset(path: Path, domains: list[str]) -> None:
     )
 
 
-def write_singbox_json(path: Path, domains: list[str]) -> None:
-    payload = {
-        "version": 1,
-        "rules": [
-            {"domain_suffix": domains},
-        ],
-    }
+def read_list_extras() -> tuple[list[str], list[str]]:
+    """DOMAIN-KEYWORD значения и IP-CIDR сети из итогового списка."""
+
+    keywords: list[str] = []
+    cidrs: list[str] = []
+
+    for raw in LIST_FILENAME.read_text(
+        encoding="utf-8", errors="replace"
+    ).splitlines():
+        line = raw.strip()
+
+        if line.startswith("DOMAIN-KEYWORD,"):
+            keywords.append(line.split(",", 1)[1].strip())
+        elif line.startswith(("IP-CIDR,", "IP-CIDR6,")):
+            cidrs.append(line.split(",", 1)[1].split(",", 1)[0].strip())
+
+    return sorted(set(keywords)), sorted(set(cidrs))
+
+
+def subsume_by_keywords(
+    domains: list[str], keywords: list[str]
+) -> list[str]:
+    """
+    Убрать домены, содержащие выживший keyword как подстроку.
+
+    Применяется ТОЛЬКО там, где keyword-правила живут в том же файле,
+    что и домены (.srs): покрытие при этом не меняется. Для .mrs и
+    DOMAIN-SET применять нельзя — в тех форматах ключевых слов нет,
+    и домены там обязаны остаться полными.
+
+    Keyword-ы с ведущим дефисом не участвуют: их семантика позиционная.
+    """
+
+    drivers = sorted(
+        (k for k in keywords if not k.startswith("-")), key=len
+    )
+
+    if not drivers:
+        return domains
+
+    return [d for d in domains if not any(k in d for k in drivers)]
+
+
+def write_singbox_json(
+    path: Path,
+    domains: list[str],
+    keywords: list[str],
+    cidrs: list[str],
+) -> int:
+    """
+    JSON для компилятора sing-box rule-set.
+
+    Отдельный объект правила на каждый тип: поля внутри одного
+    объекта объединяются по И, поэтому смешивать типы нельзя.
+    URL-REGEX сюда не переносится: это паттерны полных URL, а не хостов.
+
+    Возвращает число domain_suffix после keyword-поглощения.
+    """
+
+    srs_domains = subsume_by_keywords(domains, keywords)
+
+    rules: list[dict] = []
+
+    if srs_domains:
+        rules.append({"domain_suffix": srs_domains})
+    if keywords:
+        rules.append({"domain_keyword": keywords})
+    if cidrs:
+        rules.append({"ip_cidr": cidrs})
+
+    payload = {"version": 1, "rules": rules}
     path.write_text(
         json.dumps(payload, separators=(",", ":")),
         encoding="utf-8",
     )
+
+    return len(srs_domains)
 
 
 def split_sr_sets() -> tuple[int, int, int]:
@@ -179,7 +245,14 @@ def main_build() -> None:
     blocklist_json = DIST_DIR / "blocklist_singbox.json"
 
     write_domainset(domainset, suffix_domains)
-    write_singbox_json(blocklist_json, suffix_domains)
+
+    keywords, cidrs = read_list_extras()
+    srs_domains = write_singbox_json(
+        blocklist_json, suffix_domains, keywords, cidrs
+    )
+    print(f"sing-box JSON: domain_suffix {srs_domains:,} "
+          f"(keyword-поглощение −{len(suffix_domains) - srs_domains:,}), "
+          f"domain_keyword {len(keywords):,}, ip_cidr {len(cidrs):,}")
 
     ds_count, ex_count, total_rules = split_sr_sets()
     print(f"DOMAIN-SET для SR: {ds_count:,} доменов; "
@@ -194,6 +267,9 @@ def main_build() -> None:
         "domainset_domains": ds_count,
         "extras_rules": ex_count,
         "list_total_rules": total_rules,
+        "srs_suffix_domains": srs_domains,
+        "keyword_rules": len(keywords),
+        "cidr_rules": len(cidrs),
         "sizes": {},
         "tools": {},
     }
