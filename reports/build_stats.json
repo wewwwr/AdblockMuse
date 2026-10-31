@@ -1,19 +1,19 @@
 {
-  "generated": "2026-10-30 07:55 UTC",
-  "suffix_domains": 719725,
-  "previous_suffix_domains": 719361,
-  "domainset_domains": 719725,
+  "generated": "2026-10-31 07:46 UTC",
+  "suffix_domains": 718903,
+  "previous_suffix_domains": 719725,
+  "domainset_domains": 718903,
   "extras_rules": 799,
-  "list_total_rules": 720524,
-  "srs_suffix_domains": 701028,
+  "list_total_rules": 719702,
+  "srs_suffix_domains": 700123,
   "keyword_rules": 273,
   "cidr_rules": 512,
   "sizes": {
-    "my_custom_blocklist.list": 24119551,
-    "my_custom_blocklist.domainset": 14739454,
+    "my_custom_blocklist.list": 24114932,
+    "my_custom_blocklist.domainset": 14745521,
     "my_custom_blocklist_extras.list": 22177,
-    "my_custom_blocklist.mrs": 6069092,
-    "my_custom_blocklist.srs": 5810590
+    "my_custom_blocklist.mrs": 6074387,
+    "my_custom_blocklist.srs": 5808221
   },
   "tools": {
     "mihomo": "Mihomo Meta v1.19.33 linux amd64 with go1.26.10 Wed Oct 21 16:44:56 UTC 2026",
