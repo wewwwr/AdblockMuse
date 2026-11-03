@@ -2,7 +2,7 @@
 # Auto-generated extras rule-set for Shadowrocket (RULE-SET)
 # Все правила my_custom_blocklist.list, кроме DOMAIN-SUFFIX:
 # DOMAIN-KEYWORD, URL-REGEX, IP-CIDR и DOMAIN.
-# Generated: 2026-11-02 08:39 UTC
+# Generated: 2026-11-03 08:51 UTC
 # Total rules: 799
 # ══════════════════════════════════════════════════════════════
 DOMAIN-KEYWORD,-logging.nextmedia.com
