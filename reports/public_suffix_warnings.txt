@@ -14,7 +14,7 @@ kharkov.ua
 net.ar
 net.kg
 
-== PRIVATE (DynDNS и хостинг-платформы): 98 ==
+== PRIVATE (DynDNS и хостинг-платформы): 97 ==
 16-b.it
 1cooldns.com
 32-b.it
@@ -94,7 +94,6 @@ on-fleek.app
 onthewifi.com
 ownip.net
 pagespeedmobilizer.com
-plesk.page
 pp.ru
 roxa.org
 ru.net
