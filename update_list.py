@@ -61,7 +61,6 @@ SOURCE_URLS = [
     # ── misha-tgshv ───────────────────────────────────────────────────────────
     # GeoIP-детект домены для RU региона
     "https://cdn.jsdelivr.net/gh/Lexanewmsk/shadowrocket-configuration-file@Shadowrocket/ru_adblock_shadowrocket.conf",
-    "https://raw.githubusercontent.com/misha-tgshv/shadowrocket-configuration-file/refs/heads/main/rules/domains_geo_detect.list",
 
     # ── notrack-blocklists (GitLab) ───────────────────────────────────────────
     # Malware-домены: вредоносные сайты, фишинг, ботнеты
