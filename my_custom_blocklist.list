@@ -1,7 +1,7 @@
 # ══════════════════════════════════════════════════════════════
 # Auto-generated Shadowrocket / Surge Blocklist
-# Generated: 2026-11-14 08:19 UTC
-# Total rules: 718410
+# Generated: 2026-11-14 09:22 UTC
+# Total rules: 718427
 # Compression: subdomain collapse applied to DOMAIN-SUFFIX rules
 #
 # Sources:
@@ -49454,6 +49454,7 @@ DOMAIN-SUFFIX,aldiuk-store.elorianexus.com
 DOMAIN-SUFFIX,aldiuk-store.fynsera74851.com
 DOMAIN-SUFFIX,aldiuk-store.gonoralune.com
 DOMAIN-SUFFIX,aldiuk-store.gratingate.shop
+DOMAIN-SUFFIX,aldiuk-store.grooveridge.shop
 DOMAIN-SUFFIX,aldiuk-store.ironbridgenova1994.com
 DOMAIN-SUFFIX,aldiuk-store.lullledge.shop
 DOMAIN-SUFFIX,aldiuk-store.milkbalsa.shop
@@ -111361,6 +111362,7 @@ DOMAIN-SUFFIX,brightsle.live
 DOMAIN-SUFFIX,brightsnexus.click
 DOMAIN-SUFFIX,brightsport.com
 DOMAIN-SUFFIX,brightspringshealth.com
+DOMAIN-SUFFIX,brightstackuv.info
 DOMAIN-SUFFIX,brightstakeldom.net
 DOMAIN-SUFFIX,brightstonecircle.live
 DOMAIN-SUFFIX,brightstonecorner.eu
@@ -119324,6 +119326,7 @@ DOMAIN-SUFFIX,calid.fr
 DOMAIN-SUFFIX,calidagermany.com
 DOMAIN-SUFFIX,calidmispa.store
 DOMAIN-SUFFIX,caliduswealth.com
+DOMAIN-SUFFIX,caliena.shop
 DOMAIN-SUFFIX,caliente.mx
 DOMAIN-SUFFIX,california1955.nl
 DOMAIN-SUFFIX,californiaallianceagainsttrafficking.org
@@ -136563,6 +136566,7 @@ DOMAIN-SUFFIX,clearpaathway.com
 DOMAIN-SUFFIX,clearpathfinancialrecoveryltd.com
 DOMAIN-SUFFIX,clearpathhome.eu
 DOMAIN-SUFFIX,clearpathstable.digital
+DOMAIN-SUFFIX,clearpathub.pro
 DOMAIN-SUFFIX,clearperspective.online
 DOMAIN-SUFFIX,clearpier.com
 DOMAIN-SUFFIX,clearpointjournalx.pro
@@ -138859,6 +138863,7 @@ DOMAIN-SUFFIX,cloudgallery.net
 DOMAIN-SUFFIX,cloudgame-logs-issue-prd-or.s3.us-west-2.amazonaws.com
 DOMAIN-SUFFIX,cloudgen.click
 DOMAIN-SUFFIX,cloudghostdefense.com
+DOMAIN-SUFFIX,cloudgridip.top
 DOMAIN-SUFFIX,cloudgridq.pro
 DOMAIN-SUFFIX,cloudguideer.info
 DOMAIN-SUFFIX,cloudguppy.com
@@ -174374,6 +174379,7 @@ DOMAIN-SUFFIX,deih.fr
 DOMAIN-SUFFIX,deil.com
 DOMAIN-SUFFIX,deilghtfuidate.net
 DOMAIN-SUFFIX,deimanoutletshu.shop
+DOMAIN-SUFFIX,deimeonlinesalero.shop
 DOMAIN-SUFFIX,deimonlinesalero.shop
 DOMAIN-SUFFIX,dein-berghuettenurlaub.de
 DOMAIN-SUFFIX,dein-elektroshop.de
@@ -187927,6 +187933,7 @@ DOMAIN-SUFFIX,dr-marian-tdrirmh.work
 DOMAIN-SUFFIX,dr-martensfrance.fr
 DOMAIN-SUFFIX,dr-menschick.at
 DOMAIN-SUFFIX,dr-recella-global.com
+DOMAIN-SUFFIX,dr-shoes.shop
 DOMAIN-SUFFIX,dr-stephany-rozordh.work
 DOMAIN-SUFFIX,dr-usp.firebaseapp.com
 DOMAIN-SUFFIX,dr-usp.web.app
@@ -208339,6 +208346,7 @@ DOMAIN-SUFFIX,essai-prime.fr
 DOMAIN-SUFFIX,essai-videoprime.fr
 DOMAIN-SUFFIX,essaiprime-video.fr
 DOMAIN-SUFFIX,essais-plateforme.com
+DOMAIN-SUFFIX,essaldos.com
 DOMAIN-SUFFIX,essanzashop.com
 DOMAIN-SUFFIX,essaouira.restaurant
 DOMAIN-SUFFIX,essareps.com
@@ -218061,6 +218069,7 @@ DOMAIN-SUFFIX,fashionhubpl.shop
 DOMAIN-SUFFIX,fashionid.de.greylabeldelivery.com
 DOMAIN-SUFFIX,fashionivora.de
 DOMAIN-SUFFIX,fashionlink.store
+DOMAIN-SUFFIX,fashionoutlet-vip.shop
 DOMAIN-SUFFIX,fashionoutletonline.de
 DOMAIN-SUFFIX,fashionphilliplim.com
 DOMAIN-SUFFIX,fashionposter.com
@@ -228272,6 +228281,7 @@ DOMAIN-SUFFIX,fistdoggie.com
 DOMAIN-SUFFIX,fistevasionjoint.com
 DOMAIN-SUFFIX,fistfulrilly.qpon
 DOMAIN-SUFFIX,fistirepos.store
+DOMAIN-SUFFIX,fistobeefe.store
 DOMAIN-SUFFIX,fistofzeus.com
 DOMAIN-SUFFIX,fistpoke.com
 DOMAIN-SUFFIX,fistsurprising.com
@@ -301163,6 +301173,7 @@ DOMAIN-SUFFIX,intersectiondejectedfaraway.com
 DOMAIN-SUFFIX,intersectionweigh.com
 DOMAIN-SUFFIX,interseq.at
 DOMAIN-SUFFIX,interslarnox.com
+DOMAIN-SUFFIX,intersonlinero.shop
 DOMAIN-SUFFIX,intersort.fr
 DOMAIN-SUFFIX,interspace.ne.jp
 DOMAIN-SUFFIX,interspiort.fr
@@ -356429,6 +356440,7 @@ DOMAIN-SUFFIX,lubristraf.store
 DOMAIN-SUFFIX,lubrzh.top
 DOMAIN-SUFFIX,lubtnjxw.com
 DOMAIN-SUFFIX,lubuntu.net
+DOMAIN-SUFFIX,lubuskiesygnal.top
 DOMAIN-SUFFIX,lubuskiklaster.cracksdownloadworld.com
 DOMAIN-SUFFIX,lubuuqpanfqnk.site
 DOMAIN-SUFFIX,lubywhabi.com
@@ -456313,6 +456325,7 @@ DOMAIN-SUFFIX,pi-blety.sbs
 DOMAIN-SUFFIX,pi-blety39517.lol
 DOMAIN-SUFFIX,pi-dostawa1973.cfd
 DOMAIN-SUFFIX,pi-dostawczak24h19383.cyou
+DOMAIN-SUFFIX,pi-dowozimy7394paczki.rest
 DOMAIN-SUFFIX,pi-kupteraz81837287372719827371939.pl
 DOMAIN-SUFFIX,pi-kurierski693xyz429.cyou
 DOMAIN-SUFFIX,pi-lat85815.lat
@@ -475465,6 +475478,7 @@ DOMAIN-SUFFIX,prymvale.com
 DOMAIN-SUFFIX,prymvexai.net
 DOMAIN-SUFFIX,prymwelsedigd.online
 DOMAIN-SUFFIX,pryndavorkelmuxis.net
+DOMAIN-SUFFIX,pryndik.shop
 DOMAIN-SUFFIX,prynx.click
 DOMAIN-SUFFIX,prynxo.com
 DOMAIN-SUFFIX,pryor.group
@@ -490124,6 +490138,7 @@ DOMAIN-SUFFIX,rathibearings.com
 DOMAIN-SUFFIX,rathmullansailing.com
 DOMAIN-SUFFIX,rathost.hopto.org
 DOMAIN-SUFFIX,rathvionex.live
+DOMAIN-SUFFIX,ratifdiffu.store
 DOMAIN-SUFFIX,rating-shave.com
 DOMAIN-SUFFIX,rating-widget.com
 DOMAIN-SUFFIX,rating.in
@@ -500229,6 +500244,7 @@ DOMAIN-SUFFIX,richh.cn
 DOMAIN-SUFFIX,richheart.completelifetime.com
 DOMAIN-SUFFIX,richiaffab.store
 DOMAIN-SUFFIX,richieswoodworks.com
+DOMAIN-SUFFIX,richiintel.store
 DOMAIN-SUFFIX,richinarco.rest
 DOMAIN-SUFFIX,richinfo.co
 DOMAIN-SUFFIX,richinfo.digital
@@ -546601,6 +546617,7 @@ DOMAIN-SUFFIX,slowignition.com
 DOMAIN-SUFFIX,slowinggourdcorvets.cfd
 DOMAIN-SUFFIX,slowinghardboiled.com
 DOMAIN-SUFFIX,slowingvile.com
+DOMAIN-SUFFIX,slowinskiszlak.info
 DOMAIN-SUFFIX,slowlike.com
 DOMAIN-SUFFIX,slowlyfocuseddose.com
 DOMAIN-SUFFIX,slowlyimmuneseahorse.shop
