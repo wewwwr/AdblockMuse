@@ -99,6 +99,11 @@ jobs:
       - name: Verify rules (canary checks)
         run: python verify_rules.py
 
+      # AGH-версия списка (AdGuard-синтаксис) из того же .list:
+      # ||domain^ из DOMAIN-SUFFIX, /regex/ из DOMAIN-KEYWORD.
+      - name: Build AdGuard Home version
+        run: python convert_agh.py
+
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
@@ -109,6 +114,7 @@ jobs:
           git add my_custom_blocklist.list
           git add my_custom_blocklist.domainset
           git add my_custom_blocklist_extras.list
+          git add my_custom_blocklist_agh.txt
           git add reports/
 
           echo ""
