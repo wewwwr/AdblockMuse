@@ -14,7 +14,7 @@ kharkov.ua
 net.ar
 net.kg
 
-== PRIVATE (DynDNS и хостинг-платформы): 99 ==
+== PRIVATE (DynDNS и хостинг-платформы): 100 ==
 16-b.it
 1cooldns.com
 32-b.it
@@ -106,6 +106,7 @@ servebbs.org
 serveftp.com
 servesarcasm.com
 soundcast.me
+subscribepage.io
 tcp4.me
 theworkpc.com
 try-snowplow.com
