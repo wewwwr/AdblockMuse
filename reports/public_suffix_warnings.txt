@@ -14,7 +14,7 @@ kharkov.ua
 net.ar
 net.kg
 
-== PRIVATE (DynDNS и хостинг-платформы): 100 ==
+== PRIVATE (DynDNS и хостинг-платформы): 103 ==
 16-b.it
 1cooldns.com
 32-b.it
@@ -29,6 +29,7 @@ ccwu.cc
 cf-ipfs.com
 cfolks.pl
 cloud-ip.cc
+cloudflare-ipfs.com
 cpanel.site
 dfirma.pl
 dkonto.pl
@@ -97,6 +98,8 @@ ownip.net
 pagespeedmobilizer.com
 plesk.page
 pp.ru
+repl.co
+repl.run
 roxa.org
 ru.net
 saves-the-whales.com
