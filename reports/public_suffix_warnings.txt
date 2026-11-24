@@ -14,7 +14,7 @@ kharkov.ua
 net.ar
 net.kg
 
-== PRIVATE (DynDNS и хостинг-платформы): 103 ==
+== PRIVATE (DynDNS и хостинг-платформы): 96 ==
 16-b.it
 1cooldns.com
 32-b.it
@@ -23,7 +23,6 @@ net.kg
 abrdns.com
 at-band-camp.net
 bumbleshrimp.com
-camdvr.org
 cc.cd
 ccwu.cc
 cf-ipfs.com
@@ -62,7 +61,6 @@ from-wv.com
 ggff.net
 groks-the.info
 hicam.net
-iamallama.com
 is-a-chef.net
 is-a-conservative.com
 is-a-democrat.com
@@ -81,12 +79,10 @@ ju.mp
 leadpages.co
 live-website.com
 loc.cc
-misconfused.org
 myeffect.net
 myiphost.com
 myjino.ru
 mypi.co
-mysecuritycamera.org
 mysynology.net
 nflfan.org
 now-dns.net
@@ -100,18 +96,15 @@ plesk.page
 pp.ru
 repl.co
 repl.run
-roxa.org
 ru.net
 saves-the-whales.com
 sells-it.net
 servebbs.net
 servebbs.org
-serveftp.com
 servesarcasm.com
 soundcast.me
 subscribepage.io
 tcp4.me
-theworkpc.com
 try-snowplow.com
 vpndns.net
 webhop.me
